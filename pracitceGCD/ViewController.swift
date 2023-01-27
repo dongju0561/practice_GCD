@@ -40,10 +40,12 @@ class ViewController: UIViewController {
         ])
 
         //서버로부터 이미지를 다운받는 함수/search
-        func downloadImageFromServer() -> UIImage {
+        func downloadImageFromServer() {
             //서버로부터 이미지를 가져왔다고 가정
-            let img: UIImage = UIImage(named: "dog.jpeg")!
-            return img
+//            let img: UIImage = UIImage(named: "dog.jpeg")!
+//            return img
+            imageView.load()
+            
         }
 
         //컴포넌트들의 UI 상태를 업데이트 해주는 함수
@@ -52,15 +54,28 @@ class ViewController: UIViewController {
         }
         DispatchQueue.global(qos: .background).async {
 
-            let image = downloadImageFromServer()
+            downloadImageFromServer()
             DispatchQueue.main.async {
-                updateUI(image: image)
+//                updateUI(image: image)
             }
         }
     }
 }
 
-
+extension UIImageView {
+    func load(url: URL) {
+        DispatchQueue.global().async { [weak self] in // [weak self]는 어떤 의미를 가지는 것일까?
+            //
+            if let data = try? Data(contentsOf: url) { // try가 가지는 의미? URL 데이터를 바이트 형태으로 변경
+                if let image = UIImage(data: data) { // byte 형식으로 변환된 데이터 image형태로 변경
+                    DispatchQueue.main.async {
+                        self?.image = image // url로부터 가져온 이미지 UIImageView에 출력
+                    }
+                }
+            }
+        }
+    }
+}
 //// 유저와 직접 인터렉티브 : UI관련 (즉시)
 //DispatchQueue.global(qos: .userInteractive).async {
 //    <#code#>
